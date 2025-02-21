@@ -19,7 +19,7 @@
                     <div class="card-body row">
                         @if (count($produtos) > 0)
                             @foreach ($produtos as $produto)
-                                <div class="card col-md m-1 px-0 text-center">
+                                <div class="card col-md-3 m-1 px-0 text-center">
                                     <img class="card-img-top" src="{{ asset($produto->imagem) }}" alt="{{ $produto->nome }}"
                                         data-toggle="tooltip" title="{{ $produto->nome }}">
                                     <div class="card-body">

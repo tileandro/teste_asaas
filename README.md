@@ -8,10 +8,6 @@ ao ambiente de homologação do ASAAS
 ## Comando para criar as tabelas do banco de dados
 `php artisan migrate`
 
-## Comando para instalar as dependências do projeto
-Acesse o container "laravel-asaas", no meu caso acessei via Programa "Docker Desktop" como a imagem abaixo, e digite o comando `composer install --dev`
-
-![alt text](docker.png)
 
 ## Dados de Acesso ao Banco de Dados local
 ```
@@ -23,7 +19,7 @@ Port: 3306
 ```
 
 ## Token de acesso ASAAS
-Insira o seu token de acesso ao ambiente de homologação da ASAAS na variável `TOKEN_ASAAS` no arquivo `.env` na raís do projeto, como na imagem abaixo
+Insira o seu token de acesso ao ambiente de homologação da ASAAS na variável `TOKEN_ASAAS` no arquivo `.env` na raís do projeto, como na imagem abaixo (está gravada a minha chave de homologação)
 
 ![alt text](token.png)
 
@@ -42,4 +38,12 @@ Validade do cartão: 08/2027
 CVV do cartão: 123
 ```
 
-![alt text](docker.png)
+![alt text](image.png)
+
+![alt text](image2.png)
+
+![alt text](image3.png)
+
+![alt text](image4.png)
+
+![alt text](image5.png)
