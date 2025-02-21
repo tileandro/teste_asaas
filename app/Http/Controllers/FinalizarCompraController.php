@@ -9,6 +9,7 @@ use App\Models\Produtos;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Type\Integer;
+use Symfony\Component\Console\Input\Input;
 
 class FinalizarCompraController extends Controller
 {
@@ -42,24 +43,37 @@ class FinalizarCompraController extends Controller
     {
         $radio_cpf_cnpj = $request->radio_cpf_cnpj;
 
-        $request->validate(
-            [
-                'nome' => ['required', 'max:255'],
-                'email' => ['required', 'email', 'max:100'],
-                'telefone' => ['required', 'max:20'],
-                $radio_cpf_cnpj => ['required', 'cpf_ou_cnpj'],
-            ],
-            [
-                'required' => 'Obrigatório o preenchimento desse campo',
-                'cpf_ou_cnpj' => ':attribute inválido',
-                'max' => 'Tamanho máximo permitido de caracetes é de :max'
-            ]
-        );
+        $regras = [
+            'nome' => ['required', 'max:255'],
+            'email' => ['required', 'email', 'max:100'],
+            'telefone' => ['required', 'max:20'],
+            $radio_cpf_cnpj => ['required', 'cpf_ou_cnpj'],
+        ];
+
+        if ($request->payment_method == 'CREDIT_CARD') {
+            $regras['numero_cartao'] = ['required'];
+            $regras['nome_cartao'] = ['required'];
+            $regras['validade_cartao'] = ['required'];
+            $regras['parcelas_cartao'] = ['required'];
+            $regras['cvv_cartao'] = ['required'];
+        }
+
+        $feedback = [
+            'required' => 'Obrigatório o preenchimento desse campo',
+            'cpf_ou_cnpj' => ':attribute inválido',
+            'max' => 'Tamanho máximo permitido de caracetes é de :max'
+        ];
+
+        $request->validate($regras, $feedback);
 
         $request[$radio_cpf_cnpj] = str_replace('.', '', str_replace('-', '', str_replace('/', '', $request->$radio_cpf_cnpj)));
         $request['telefone'] = str_replace('(', '', str_replace(')', '', str_replace('-', '', str_replace(' ', '', $request->telefone))));
 
         $userRegister = $this->userRegister($request->nome, $request->email, $request->telefone, $request->$radio_cpf_cnpj, $request->server('HTTP_USER_AGENT'));
+
+        if (empty($userRegister)) {
+            return back()->with('error', 'Houve algum erro no site, por favor entre em contato com o administrador do site!')->withInput($request->all());
+        }
 
         if ($request->payment_method == 'BOLETO' || $request->payment_method == 'PIX') {
             $payment = $this->payment_boleto_pix($request->payment_method, $userRegister['idUserAsaas'], $request['preco'], $request->server('HTTP_USER_AGENT'), $userRegister['user_id'], $request->id_produto);
@@ -69,11 +83,15 @@ class FinalizarCompraController extends Controller
             $payment = $this->payment_credt_card($request->payment_method, $userRegister['idUserAsaas'], $request['preco'], $request->server('HTTP_USER_AGENT'), $userRegister['user_id'], $request->id_produto, $request->nome, $request->email, $request->$radio_cpf_cnpj, $request->telefone, $request->nome_cartao, $request->numero_cartao, $request->validade_cartao, $request->cvv_cartao, $request->parcelas_cartao);
         }
 
+        if (empty($payment)) {
+            return back()->with('error', 'Houve algum erro no site, por favor entre em contato com o administrador do site!')->withInput($request->all());
+        }
+
         if (($userRegister['status'] < 200 || $userRegister['status'] > 299) || ($payment['status'] < 200 || $payment['status'] > 299)) {
-            return back()->with('error', $payment['msg']);
+            return back()->with('error', $payment['msg'])->withInput($request->all());
         } else {
             return redirect()->route('pedido.show', ['pedido' => $payment['pedido_id']]);
-        };
+        }
     }
 
     /**
@@ -155,6 +173,9 @@ class FinalizarCompraController extends Controller
         curl_close($curl);
 
         if ($httpcode < 200 || $httpcode > 299) {
+            if (empty($response)) {
+                return $response;
+            }
             $error = json_decode($response);
             $msg = $error->errors[0]->description;
         } else {
@@ -225,6 +246,13 @@ class FinalizarCompraController extends Controller
         if ($httpcode < 200 || $httpcode > 299) {
             $error = json_decode($response);
             $msg = $error->errors[0]->description;
+
+            $json = array(
+                'status' => $httpcode,
+                'msg' => $msg
+            );
+
+            return $json;
         } else {
             //Gerando log do request no banco
             $log = new logPedidosAsaas();
@@ -282,15 +310,15 @@ class FinalizarCompraController extends Controller
             $pedido->save();
 
             $msg = 'Pedido realizado com sucesso';
+
+            $json = array(
+                'status' => $httpcode,
+                'pedido_id' => $pedido->id,
+                'msg' => $msg
+            );
+
+            return $json;
         }
-
-        $json = array(
-            'status' => $httpcode,
-            'pedido_id' => $pedido->id,
-            'msg' => $msg
-        );
-
-        return $json;
     }
 
     private function payment_credt_card(string $method_payment, string $idUserAsass, float $preco, string $agente, string $user_id, int $produto_id, string $nome, string $email, string $cpf_cnpj, int $phone, string $card_name, string $card_number, string $card_valid, int $card_cvv, int $parcelas_cartao)
@@ -349,6 +377,13 @@ class FinalizarCompraController extends Controller
         if ($httpcode < 200 || $httpcode > 299) {
             $error = json_decode($response);
             $msg = $error->errors[0]->description;
+
+            $json = array(
+                'status' => $httpcode,
+                'msg' => $msg
+            );
+
+            return $json;
         } else {
             //Gerando log do request no banco
             $log = new logPedidosAsaas();
@@ -369,14 +404,14 @@ class FinalizarCompraController extends Controller
             $pedido->save();
 
             $msg = 'Pedido realizado com sucesso';
+
+            $json = array(
+                'status' => $httpcode,
+                'pedido_id' => $pedido->id,
+                'msg' => $msg
+            );
+
+            return $json;
         }
-
-        $json = array(
-            'status' => $httpcode,
-            'pedido_id' => $pedido->id,
-            'msg' => $msg
-        );
-
-        return $json;
     }
 }

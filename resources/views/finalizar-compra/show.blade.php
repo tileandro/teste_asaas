@@ -155,15 +155,17 @@
                                         <button class="btn py-0" type="button" data-toggle="collapse"
                                             data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                             <input id="boleto" type="radio" class="input-radio btn"
-                                                name="payment_method" value="BOLETO" checked>
+                                                name="payment_method" value="BOLETO"
+                                                {{ old('payment_method') != 'BOLETO' ? '' : 'checked' }}>
                                             <label for="boleto" class="btn my-0"><img
                                                     src="{{ asset('img/boleto.png') }}" /> BOLETO</label>
                                         </button>
                                     </h5>
                                 </div>
 
-                                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                    data-parent="#accordionExample">
+                                <div id="collapseOne"
+                                    class="collapse {{ old('payment_method') != 'BOLETO' ? '' : 'show' }}"
+                                    aria-labelledby="headingOne" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="alert alert-info" role="alert">
                                             O boleto bancário será exibido após a confirmação e poderá ser impresso para
@@ -178,14 +180,15 @@
                                         <button class="btn collapsed py-0" type="button" data-toggle="collapse"
                                             data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                             <input id="pix" type="radio" class="input-radio btn"
-                                                name="payment_method" value="PIX">
+                                                name="payment_method" value="PIX"
+                                                {{ old('payment_method') == 'PIX' ? 'checked' : '' }}>
                                             <label for="pix" class="btn my-0"><img
                                                     src="{{ asset('img/pix.png') }}" /> PIX</label>
                                         </button>
                                     </h5>
                                 </div>
-                                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                                    data-parent="#accordionExample">
+                                <div id="collapseTwo" class="collapse {{ old('payment_method') == 'PIX' ? 'show' : '' }}"
+                                    aria-labelledby="headingTwo" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="alert alert-info" role="alert">
                                             Pix é uma nova forma de pagamento instantâneo e seu pedido é aprovado na
@@ -202,15 +205,17 @@
                                             data-target="#collapseThree" aria-expanded="false"
                                             aria-controls="collapseThree">
                                             <input id="cartao" type="radio" class="input-radio btn"
-                                                name="payment_method" value="CREDIT_CARD">
+                                                name="payment_method" value="CREDIT_CARD"
+                                                {{ old('payment_method') == 'CREDIT_CARD' ? 'checked' : '' }}>
                                             <label for="cartao" class="btn my-0"><img
                                                     src="{{ asset('img/cartaocredito.png') }}" /> CARTÃO DE
                                                 CRÉDITO</label>
                                         </button>
                                     </h5>
                                 </div>
-                                <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                                    data-parent="#accordionExample">
+                                <div id="collapseThree"
+                                    class="collapse {{ old('payment_method') == 'CREDIT_CARD' ? 'show' : '' }}"
+                                    aria-labelledby="headingThree" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="alert alert-info" role="alert">
                                             No cartão de crédito a provação do seu pedido é imediata, rápida e segura,
