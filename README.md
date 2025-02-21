@@ -16,6 +16,8 @@ User: root
 Password: 'root'
 DataBase: asaas
 Port: 3306
+
+No banco de dados além das migrations está salvando também os dados do cliente(usuário), pedido, produto, log de criação do usuário na ASAAS e log de criação de pedido na ASAAS
 ```
 
 ## Token de acesso ASAAS

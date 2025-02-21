@@ -156,7 +156,7 @@
                                             data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                             <input id="boleto" type="radio" class="input-radio btn"
                                                 name="payment_method" value="BOLETO"
-                                                {{ old('payment_method') != 'BOLETO' ? '' : 'checked' }}>
+                                                {{ old('payment_method') == 'BOLETO' || !old('payment_method') ? 'checked' : '' }}>
                                             <label for="boleto" class="btn my-0"><img
                                                     src="{{ asset('img/boleto.png') }}" /> BOLETO</label>
                                         </button>
@@ -164,7 +164,7 @@
                                 </div>
 
                                 <div id="collapseOne"
-                                    class="collapse {{ old('payment_method') != 'BOLETO' ? '' : 'show' }}"
+                                    class="collapse {{ old('payment_method') == 'BOLETO' || !old('payment_method') ? 'show' : '' }}"
                                     aria-labelledby="headingOne" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="alert alert-info" role="alert">
@@ -316,7 +316,7 @@
                                                     name="parcelas_cartao">
                                                     @for ($i = 1; $i <= 10; $i++)
                                                         {{ $parcela = $produto['preco'] / $i }}
-                                                        @if ($parcela >= 20)
+                                                        @if ($parcela >= 20 || $i == 1)
                                                             <option value="{{ $i }}">{{ $i }}x de
                                                                 {{ substr(number_format($parcela, 3, ',', '.'), -0, -1) }}
                                                             </option>
